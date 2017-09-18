@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Exoplanets</title>
+<head>
+<style>
+.group {
+	fill: none;
+  	stroke: #000;
+  	stroke-width: 1.5px;
+  }
+  
+#planetName { 
+	font-size: 1.5em; 
+	font-weight: bold;
+	}
+
+div { 
+	display: inline-block;
+	position: absolute; 
+	}
+  
+p { position: relative; }
+  
+svg {
+    position: absolute;
+    left: 100;
+    top: 0;
+    z-index: -1;
+}
+
+caption {
+	display: inline-block;
+	position: relative;
+}
+
+</style>
+</head>
+<body>
+<script src="../d3/d3.v4.js"></script>
+<script type="text/javascript" src="../js/web-audio-boilerplate.js"></script>
+<script type="text/javascript" src="../js/jquery-3.2.1.js"></script>
+<script src="../js/audiolib.js"></script>
+<div>
+<p id = "displayString">
+<span id = "planetName">Exoplanets</span><br>
+planet radius:<br>
+distance:<br>
+atmosphere:
+</p>
+<script>
+// ********** Here starts the Web Audio part **********
+"use strict";
+
+var audioContext = new AudioContext();
+var reverbAmountVal = 1.0;
+var sounds = undefined;
+var reverbAmount = audioContext.createGain();
+
+var impulseResponseBuffer;
+var getSound = new XMLHttpRequest();
+getSound.open("get", "sounds/impulse.wav", true); // impulse file
+getSound.responseType = "arraybuffer";
+
+getSound.onload = function() {
+    audioContext.decodeAudioData(getSound.response, function(buffer) {
+        impulseResponseBuffer = buffer;
+    });
+};
+getSound.send();
+
+var appSounds = {
+	metalGiant0: "sounds/MetalBarG2-2.mp3",
+	metalGiant1: "sounds/MetalBarG2-3.mp3",
+    metalGiant2: "sounds/MetalBarG2-4.mp3",
+    
+    stringGiant0: "sounds/StringG2-0.mp3",
+    stringGiant1: "sounds/StringG2-1.mp3",
+    stringGiant2: "sounds/StringG2-2.mp3",
+    	
+	metalHuge0: "sounds/MetalBarD3-0.mp3",
+	metalHuge1: "sounds/MetalBarD3-1.mp3",
+	metalHuge2: "sounds/MetalBarD3-2.mp3",
+	metalHuge3: "sounds/MetalBarD3-3.mp3",
+    metalHuge4: "sounds/MetalBarD3-4.mp3",
+    metalHuge5: "sounds/MetalBarD3-5.mp3",
+    
+    stringHuge0: "sounds/StringD3-0.mp3",
+    stringHuge1: "sounds/StringD3-1.mp3",
+    stringHuge2: "sounds/StringD3-2.mp3",
+    stringHuge3: "sounds/StringD3-3.mp3",
+    stringHuge4: "sounds/StringD3-4.mp3",
+    
+	metalBigPlus0: "sounds/MetalBarG3-0.mp3",
+	metalBigPlus1: "sounds/MetalBarG3-1.mp3",
+	metalBigPlus2: "sounds/MetalBarG3-2.mp3",
+	metalBigPlus3: "sounds/MetalBarG3-3.mp3",
+    metalBigPlus4: "sounds/MetalBarG3-4.mp3",
+    
+    stringBigPlus0: "sounds/StringG3-0.mp3",
+    stringBigPlus1: "sounds/StringG3-1.mp3",
+    stringBigPlus2: "sounds/StringG3-2.mp3",
+    stringBigPlus3: "sounds/StringG3-3.mp3",
+    stringBigPlus4: "sounds/StringG3-4.mp3",
+
+	metalBig0: "sounds/MetalBarA3-0.mp3",
+	metalBig1: "sounds/MetalBarA3-1.mp3",
+	metalBig2: "sounds/MetalBarA3-2.mp3",
+	metalBig3: "sounds/MetalBarA3-3.mp3",
+    metalBig4: "sounds/MetalBarA3-4.mp3",
+    
+    stringBig0: "sounds/StringA3-0.mp3",
+    stringBig1: "sounds/StringA3-1.mp3",
+    stringBig2: "sounds/StringA3-2.mp3",
+    stringBig3: "sounds/StringA3-3.mp3",
+    stringBig4: "sounds/StringA3-4.mp3",
+
+	metalBigMinus0: "sounds/MetalBarD4-0.mp3",
+	metalBigMinus1: "sounds/MetalBarD4-1.mp3",
+	metalBigMinus2: "sounds/MetalBarD4-2.mp3",
+	metalBigMinus3: "sounds/MetalBarD4-3.mp3",
+    metalBigMinus4: "sounds/MetalBarD4-4.mp3",
+    
+    stringBigMinus0: "sounds/StringD4-0.mp3",
+    stringBigMinus1: "sounds/StringD4-1.mp3",
+    stringBigMinus2: "sounds/StringD4-2.mp3",
+    stringBigMinus3: "sounds/StringD4-3.mp3",
+    stringBigMinus4: "sounds/StringD4-4.mp3",
+
+	metalMediumPlus0: "sounds/MetalBarG4-0.mp3",
+	metalMediumPlus1: "sounds/MetalBarG4-1.mp3",
+	metalMediumPlus2: "sounds/MetalBarG4-2.mp3",
+	metalMediumPlus3: "sounds/MetalBarG4-3.mp3",
+    metalMediumPlus4: "sounds/MetalBarG4-4.mp3",
+    metalMediumPlus5: "sounds/MetalBarG4-5.mp3",  
+    
+    stringMediumPlus0: "sounds/StringG4-0.mp3",
+    stringMediumPlus1: "sounds/StringG4-1.mp3",
+    stringMediumPlus2: "sounds/StringG4-2.mp3",
+    stringMediumPlus3: "sounds/StringG4-3.mp3",
+
+	metalMedium0: "sounds/MetalBarA4-0.mp3",
+	metalMedium1: "sounds/MetalBarA4-1.mp3",
+	metalMedium2: "sounds/MetalBarA4-2.mp3",
+	metalMedium3: "sounds/MetalBarA4-4.mp3",
+    metalMedium4: "sounds/MetalBarA4-4.mp3",
+    metalMedium5: "sounds/MetalBarA4-5.mp3", 
+    
+    stringMedium0: "sounds/StringA4-0.mp3",
+    stringMedium1: "sounds/StringA4-1.mp3",
+    stringMedium2: "sounds/StringA4-2.mp3",
+    stringMedium3: "sounds/StringA4-3.mp3",
+    
+	metalMediumMinus0: "sounds/MetalBarC5-0.mp3",
+	metalMediumMinus1: "sounds/MetalBarC5-1.mp3",
+	metalMediumMinus2: "sounds/MetalBarC5-2.mp3",
+	metalMediumMinus3: "sounds/MetalBarC5-4.mp3",
+    metalMediumMinus4: "sounds/MetalBarC5-4.mp3",
+    metalMediumMinus5: "sounds/MetalBarC5-5.mp3",     
+    
+    stringMediumMinus0: "sounds/StringC5-0.mp3",
+    stringMediumMinus1: "sounds/StringC5-1.mp3", 
+    stringMediumMinus2: "sounds/StringC5-2.mp3",
+    stringMediumMinus3: "sounds/StringC5-3.mp3",
+
+	metalSmallPlus0: "sounds/MetalBarG5-0.mp3",
+	metalSmallPlus1: "sounds/MetalBarG5-1.mp3",
+	metalSmallPlus2: "sounds/MetalBarG5-2.mp3",
+	metalSmallPlus3: "sounds/MetalBarG5-3.mp3",
+	
+	stringSmallPlus0: "sounds/StringG5-0.mp3",
+	stringSmallPlus1: "sounds/StringG5-1.mp3",
+	stringSmallPlus2: "sounds/StringG5-2.mp3",
+        
+	metalSmall0: "sounds/MetalBarA5-0.mp3",
+	metalSmall1: "sounds/MetalBarA5-1.mp3",
+	metalSmall2: "sounds/MetalBarA5-2.mp3",
+	
+	stringSmall0: "sounds/StringA5-0.mp3",
+	stringSmall1: "sounds/StringA5-1.mp3",
+	stringSmall2: "sounds/StringA5-2.mp3",
+
+	metalSmallMinus0: "sounds/MetalBarC6-0.mp3",
+	metalSmallMinus1: "sounds/MetalBarC6-1.mp3",
+	metalSmallMinus2: "sounds/MetalBarC6-2.mp3",
+	
+	stringSmallMinus0: "sounds/StringC6-0.mp3",
+	stringSmallMinus1: "sounds/StringC6-1.mp3",
+	
+	metalTiny0: "sounds/MetalBarD6-0.mp3",
+	metalTiny1: "sounds/MetalBarD6-1.mp3",
+	metalTiny2: "sounds/MetalBarD6-2.mp3",	
+	
+	stringTiny0: "sounds/StringD6-0.mp3",
+	stringTiny1: "sounds/StringD6-1.mp3",
+
+    nodes: function nodeGraph(sound) {
+
+        var reverb = audioContext.createConvolver();
+        reverb.buffer = impulseResponseBuffer;
+        reverbAmount = audioContext.createGain();
+
+        //sound.loop = false;
+        sound.connect(reverb);
+        sound.connect(audioContext.destination);
+        reverb.connect(reverbAmount);
+        reverbAmount.connect(audioContext.destination);
+    }
+};
+
+setInterval(function() {
+    reverbAmount.gain.value = reverbAmountVal;   
+}, 50);		// change reverb amount according to slider movement; or, according to size, or distance
+
+sounds = audioBatchLoader(appSounds);
+
+var mouseColor = undefined, mouseName = undefined, mouseDistance = undefined, mouseAtmosphere = undefined,
+	giant = 20.6,	// these variables set which pitch to play, according to planet's radius
+	huge = 18.7,
+	bigPlus = 14.75,
+	big = 13.0,
+	bigMinus = 12.25,
+	mediumPlus = 9.6,
+	medium = 7.9,
+	mediumMinus = 6.91,
+	smallPlus = 4.5,
+	small = 3.0,
+	smallMinus = 2.0,
+	tiny = 0.0;
+
+function playMetal() {
+
+var displayString = "<p><span id = 'planetName'>" + mouseName + "</span><br>planet radius: " + mouseColor + " EU <br>distance: " 
+  + mouseDistance + " parsecs <br>atmosphere: " + mouseAtmosphere + "</p>";
+document.getElementById("displayString").innerHTML = displayString;
+
+  if (mouseColor >= giant) {  // radius of planet in Earth units
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.metalGiant0.play();
+      break;
+    case 1:
+      sounds.metalGiant1.play();
+      break;
+    case 2:
+      sounds.metalGiant2.play();
+      break;
+  }} else
+  if (mouseColor >= huge) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.metalHuge0.play();
+      break;
+    case 1:
+      sounds.metalHuge1.play();
+      break;
+    case 2:
+      sounds.metalHuge2.play();
+      break;
+    case 3:
+      sounds.metalHuge3.play();
+      break;
+    case 4:
+      sounds.metalHuge4.play();
+      break;
+  }} else
+  if (mouseColor >= bigPlus) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.metalBigPlus0.play();
+      break;
+    case 1:
+      sounds.metalBigPlus1.play();
+      break;
+    case 2:
+      sounds.metalBigPlus2.play();
+      break;
+    case 3:
+      sounds.metalBigPlus3.play();
+      break;
+    case 4:
+      sounds.metalBigPlus4.play();
+      break;
+  }} else
+  if (mouseColor >= big) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.metalBig0.play();
+      break;
+    case 1:
+      sounds.metalBig1.play();
+      break;
+    case 2:
+      sounds.metalBig2.play();
+      break;
+    case 3:
+      sounds.metalBig3.play();
+      break;
+    case 4:
+      sounds.metalBig4.play();
+      break;
+  }} else
+  if (mouseColor >= bigMinus) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.metalBigMinus0.play();
+      break;
+    case 1:
+      sounds.metalBigMinus1.play();
+      break;
+    case 2:
+      sounds.metalBigMinus2.play();
+      break;
+    case 3:
+      sounds.metalBigMinus3.play();
+      break;
+    case 4:
+      sounds.metalBigMinus4.play();
+      break;
+  }} else
+  if (mouseColor >= mediumPlus) {
+  var rand = Math.floor(Math.random() * 6);
+  switch (rand) {
+    case 0:
+      sounds.metalMediumPlus0.play();
+      break;
+    case 1:
+      sounds.metalMediumPlus1.play();
+      break;
+    case 2:
+      sounds.metalMediumPlus2.play();
+      break;
+    case 3:
+      sounds.metalMediumPlus3.play();
+      break;
+    case 4:
+      sounds.metalMediumPlus4.play();
+      break;
+    case 5:
+      sounds.metalMediumPlus5.play();
+      break;
+  }}  else
+  if (mouseColor >= medium) {
+  var rand = Math.floor(Math.random() * 6);
+  switch (rand) {
+    case 0:
+      sounds.metalMedium0.play();
+      break;
+    case 1:
+      sounds.metalMedium1.play();
+      break;
+    case 2:
+      sounds.metalMedium2.play();
+      break;
+    case 3:
+      sounds.metalMedium3.play();
+      break;
+    case 4:
+      sounds.metalMedium4.play();
+      break;
+    case 5:
+      sounds.metalMedium5.play();
+      break;
+  }} else
+  if (mouseColor >= mediumMinus) {
+  var rand = Math.floor(Math.random() * 6);
+  switch (rand) {
+    case 0:
+      sounds.metalMediumMinus0.play();
+      break;
+    case 1:
+      sounds.metalMediumMinus1.play();
+      break;
+    case 2:
+      sounds.metalMediumMinus2.play();
+      break;
+    case 3:
+      sounds.metalMediumMinus3.play();
+      break;
+    case 4:
+      sounds.metalMediumMinus4.play();
+      break;
+    case 5:
+      sounds.metalMediumMinus5.play();
+      break;
+  }} else
+  if (mouseColor >= smallPlus) {
+  var rand = Math.floor(Math.random() * 4);
+  switch (rand) {
+    case 0:
+      sounds.metalSmallPlus0.play();
+      break;
+    case 1:
+      sounds.metalSmallPlus1.play();
+      break;
+    case 2:
+      sounds.metalSmallPlus2.play();
+      break;
+    case 3:
+      sounds.metalSmallPlus3.play();
+      break;
+  }} else
+  if (mouseColor >= small) {
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.metalSmall0.play();
+      break;
+    case 1:
+      sounds.metalSmall1.play();
+      break;
+    case 2:
+      sounds.metalSmall2.play();
+      break;
+  }} else
+  if (mouseColor >= smallMinus) {
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.metalSmallMinus0.play();
+      break;
+    case 1:
+      sounds.metalSmallMinus1.play();
+      break;
+    case 2:
+      sounds.metalSmallMinus2.play();
+      break;
+  }} else
+  if (mouseColor >= tiny) {
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.metalTiny0.play();
+      break;
+    case 1:
+      sounds.metalTiny1.play();
+      break;
+    case 2:
+      sounds.metalTiny2.play();
+      break;
+  }} 
+};
+
+function playHydrogen() {
+var displayString = "<p><span id = 'planetName'>" + mouseName + "</span><br>planet radius: " + mouseColor + " EU <br>distance: " 
+  + mouseDistance + " parsescs <br>atmosphere: " + mouseAtmosphere + "</p>";
+document.getElementById("displayString").innerHTML = displayString;
+
+  if (mouseColor >= giant) {  // radius of planet in Earth units
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.stringGiant0.play();
+      break;
+    case 1:
+      sounds.stringGiant1.play();
+      break;
+    case 2:
+      sounds.stringGiant2.play();
+      break;
+  }} else
+  if (mouseColor >= huge) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.stringHuge0.play();
+      break;
+    case 1:
+      sounds.stringHuge1.play();
+      break;
+    case 2:
+      sounds.stringHuge2.play();
+      break;
+    case 3:
+      sounds.stringHuge3.play();
+      break;
+    case 4:
+      sounds.stringHuge4.play();
+      break;
+  }} else
+  if (mouseColor >= bigPlus) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.stringBigPlus0.play();
+      break;
+    case 1:
+      sounds.stringBigPlus1.play();
+      break;
+    case 2:
+      sounds.stringBigPlus2.play();
+      break;
+    case 3:
+      sounds.stringBigPlus3.play();
+      break;
+    case 4:
+      sounds.stringBigPlus4.play();
+      break;
+  }} else
+  if (mouseColor >= big) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.stringBig0.play();
+      break;
+    case 1:
+      sounds.stringBig1.play();
+      break;
+    case 2:
+      sounds.stringBig2.play();
+      break;
+    case 3:
+      sounds.stringBig3.play();
+      break;
+    case 4:
+      sounds.stringBig4.play();
+      break;
+  }} else
+  if (mouseColor >= bigMinus) {
+  var rand = Math.floor(Math.random() * 5);
+  switch (rand) {
+    case 0:
+      sounds.stringBigMinus0.play();
+      break;
+    case 1:
+      sounds.stringBigMinus1.play();
+      break;
+    case 2:
+      sounds.stringBigMinus2.play();
+      break;
+    case 3:
+      sounds.stringBigMinus3.play();
+      break;
+    case 4:
+      sounds.stringBigMinus4.play();
+      break;
+  }} else
+  if (mouseColor >= mediumPlus) {
+  var rand = Math.floor(Math.random() * 4);
+  switch (rand) {
+    case 0:
+      sounds.stringMediumPlus0.play();
+      break;
+    case 1:
+      sounds.stringMediumPlus1.play();
+      break;
+    case 2:
+      sounds.stringMediumPlus2.play();
+      break;
+    case 3:
+      sounds.stringMediumPlus3.play();
+      break;
+  }}  else
+  if (mouseColor >= medium) {
+  var rand = Math.floor(Math.random() * 4);
+  switch (rand) {
+    case 0:
+      sounds.stringMedium0.play();
+      break;
+    case 1:
+      sounds.stringMedium1.play();
+      break;
+    case 2:
+      sounds.stringMedium2.play();
+      break;
+    case 3:
+      sounds.stringMedium3.play();
+      break;
+  }} else
+  if (mouseColor >= mediumMinus) {
+  var rand = Math.floor(Math.random() * 4);
+  switch (rand) {
+    case 0:
+      sounds.stringMediumMinus0.play();
+      break;
+    case 1:
+      sounds.stringMediumMinus1.play();
+      break;
+    case 2:
+      sounds.stringMediumMinus2.play();
+      break;
+    case 3:
+      sounds.stringMediumMinus3.play();
+      break;
+  }} else
+  if (mouseColor >= smallPlus) {
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.stringSmallPlus0.play();
+      break;
+    case 1:
+      sounds.stringSmallPlus1.play();
+      break;
+    case 2:
+      sounds.stringSmallPlus2.play();
+      break;
+  }} else
+  if (mouseColor >= small) {
+  var rand = Math.floor(Math.random() * 3);
+  switch (rand) {
+    case 0:
+      sounds.stringSmall0.play();
+      break;
+    case 1:
+      sounds.stringSmall1.play();
+      break;
+    case 2:
+      sounds.stringSmall2.play();
+      break;
+  }} else
+  if (mouseColor >= smallMinus) {
+  var rand = Math.floor(Math.random() * 2);
+  switch (rand) {
+    case 0:
+      sounds.stringSmallMinus0.play();
+      break;
+    case 1:
+      sounds.stringSmallMinus1.play();
+      break;
+  }} else
+  if (mouseColor >= tiny) {
+  var rand = Math.floor(Math.random() * 2);
+  switch (rand) {
+    case 0:
+      sounds.stringTiny0.play();
+      break;
+    case 1:
+      sounds.stringTiny1.play();
+      break;
+  }} 
+};
+
+// ********** d3 script **********
+
+var color = d3.scaleQuantize()
+    .range(["#156b87", "#876315", "#543510", "#872815"])
+		// xkcd color scale:
+		// blue: #156b87, lightbrown: #876315, brown: #543510, red: #872815
+		// max: 24.5, min: 0.003
+		// 0.0-4.0: blue; 4.0-8.0: lightbrown; 8.0-18.0: brown; 18.0-23.5: red
+
+var mouseSound = d3.scaleQuantize() // try this instead of mouseColor, tied to radius below - doesn't work
+	.range(["tiny","smallMinus", "small", "smallPlus", "mediumMinus", "medium", "mediumPlus", 
+	"bigMinus", "big", "bigPlus", "huge", "giant"])
+
+var size = 900;
+
+var pack = d3.pack()	// algorithm to make the circle distribution onscreen(?)
+    .size([size, size])
+    .padding(5);
+
+var svg = d3.select("body").append("svg")
+    .attr("width", size)
+    .attr("height", size);
+
+d3.csv("phl_hec_all_confirmedSTexcerpt.csv", type, function(error, data) {
+  var planets = data.filter(function(d) { return d.distance === 0; }),		// if distance is zero parsecs, solar system
+      exoplanets = data.filter(function(d) { return d.distance !== 0; });   // farther away is exoplanets
+
+  color.domain(d3.extent(data, function(d) { return d.radius; }));  
+  // domain of the scale function is set by each planet's radius
+  mouseSound.domain(d3.extent(data, function(d) { return d.radius; }));
+
+  var root = d3.hierarchy({children: [{children: planets}].concat(exoplanets)})
+      .sum(function(d) { return d.radius * d.radius; })
+      .sort(function(a, b) {
+        return !a.children - !b.children
+            || isNaN(a.data.distance) - isNaN(b.data.distance)
+            || a.data.distance - b.data.distance;
+      });
+
+  pack(root);
+
+  svg.selectAll("circle")
+    .data(root.descendants().slice(1))
+    .enter().append("circle")
+      .attr("r", function(d) { return d.r; })
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+      .classed("group", function(d) { return d.children; })
+    .filter(function(d) { return d.data; })
+      .style("fill", function(d) { return color(d.data.radius); })	// is this the key line for mouseovers?
+      .on("mouseover", function(d) {
+        mouseColor = d.data.radius;
+        mouseName = d.data.name;
+        mouseDistance = d.data.distance;
+        mouseAtmosphere = d.data.atmosphere;
+        if (d.data.atmosphere === "metals-rich") {playMetal(); // try playSound(function(d){ return mouseSound(d.data.radius )});
+        } else {playHydrogen()}
+      // d3.select(this).style ("fill", function(d) {return color(d.data.radius).brighter(); }) // doesn't work
+    })
+    .append("title")
+      .text(function(d) {
+        return d.data.name
+            + "\nplanet radius: " + d.data.radius + " EU"
+            + "\nstar distance: " + (isNaN(d.data.distance) ? "N/A" : d.data.distance + " pc")
+            + "\nplanet atmosphere: " + d.data.atmosphere
+
+      });
+});
+
+function type(d) {
+  d.radius = +d.radius;
+  d.distance = d.distance ? +d.distance : NaN;
+  return d;
+}
+</script>
+</div>
+</body>
+</html>
