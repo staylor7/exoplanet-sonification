@@ -14,5 +14,5 @@ the plucked string sound signifies a hydrogen-rich atmosphere, while a metallic 
 Sounds made by <a href="http://kyma.symbolicsound.com/">Kyma</a>, and coded with the Web Audio API. 
 This is pretty verbose code, and I would love to make it cleaner. 
 Also, I would like the color of each planet to brighten on mouseover, using brighter(), but I can't get it to work. 
-Any comments or suggestions are welcome!
+Any comments or suggestions (staylor7@illinois.edu) are welcome!
 </p>
