@@ -1,6 +1,9 @@
 # exoplanet-sonification
 
 <p>
+Working demo is at <a href="http://stephenandrewtaylor.net/exo-sonification/exoplanets.html">
+  http://stephenandrewtaylor.net/exo-sonification/exoplanets.html</a>.
+  
 A sonified chart of exoplanets, originally based on 
 <a href="https://xkcd.com/1071/">XKCD 1071: Exoplanets</a> using data from the 
 <a href = "http://phl.upr.edu/projects/habitable-exoplanets-catalog/data/database">
