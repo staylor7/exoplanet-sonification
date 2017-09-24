@@ -43,7 +43,6 @@ footer {
 <body>
 <script src="../d3/d3.v4.js"></script>
 <script src="../js/web-audio-api-shim.js"></script>
-<script src="../js/jquery-3.2.1.js"></script>
 <script src="../js/audiolib.js"></script>
 <div>
 <p id = "displayString">
@@ -481,7 +480,6 @@ d3.csv("phl_hec_all_confirmedSTexcerpt.csv", type, function(error, data) {
 
   color.domain(d3.extent(data, function(d) { return d.radius; }));  
   // domain of the scale function is set by each planet's radius
-  // mouseSound.domain(d3.extent(data, function(d) { return d.radius; }));
 
   var root = d3.hierarchy({children: [{children: planets}].concat(exoplanets)})
       .sum(function(d) { return d.radius * d.radius; })
@@ -504,12 +502,12 @@ d3.csv("phl_hec_all_confirmedSTexcerpt.csv", type, function(error, data) {
       .style("fill", function(d) { return color(d.data.radius); })	// is this the key line for mouseovers?
       .on("mouseover", function(d) {
         mouseX = event.clientX;
-        console.log("mouseX = " + mouseX);
+        // console.log("mouseX = " + mouseX);
         mouseScale = d3.scaleLinear()
         	.domain([0, size])
         	.range([-1.0, 1.0]);
         mousePan = mouseScale(mouseX);
-        	console.log("mousePan = " + mousePan);
+        	// console.log("mousePan = " + mousePan);
         mouseColor = d.data.radius;
         mouseName = d.data.name;
         mouseDistance = d.data.distance;
@@ -567,7 +565,7 @@ The code is pretty verbose, and I would like to make it cleaner. I've put other 
 <a href="https://github.com/staylor7/exoplanet-sonification">GitHub site</a>.
 Any comments or suggestions at 
 <a href="http://stephenandrewtaylor.net">stephenandrewtaylor.net</a> are welcome! 
---!>
+!-->
 Sonification based on <a href="https://xkcd.com/1071/">XKCD 1071: Exoplanets</a>,
 <br> using data from the 
 <a href = "http://phl.upr.edu/projects/habitable-exoplanets-catalog/data/database">
