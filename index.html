@@ -3,6 +3,12 @@
 <title>Exoplanets</title>
 <head>
 <style>
+
+a:link {color: red; text-decoration: none;}
+a:visited {color: purple; text-decoration: none;}
+a:hover {color: darkorange;}
+a:active {color : orange;}
+
 .group {
 	fill: none;
   	stroke: #000;
@@ -11,38 +17,38 @@
   
 #planetName { 
 	font-size: 1.5em; 
-	font-weight: bold;
 	}
 
 div { 
 	display: inline-block;
 	position: absolute; 
 	}
-  
-p { position: relative; }
-  
+
 svg {
     position: absolute;
-    left: 100;
-    top: 0;
+    top: 80px;
     z-index: -1;
 }
 
-caption {
-	display: inline-block;
+footer {
 	position: relative;
+	top: 960px;
+	font-family: Arial, sans-serif;
+	font-weight: normal;
+	font-size: .8em;
 }
 
 </style>
 </head>
 <body>
-<script src="http://stephenandrewtaylor.net/d3/d3.v4.js"></script>
-<script type="text/javascript" src="http://stephenandrewtaylor.net/js/web-audio-boilerplate.js"></script>
-<script type="text/javascript" src="http://stephenandrewtaylor.net/js/jquery-3.2.1.js"></script>
-<script src="http://stephenandrewtaylor.net/js/audiolib.js"></script>
+<script src="../d3/d3.v4.js"></script>
+<script src="../js/web-audio-api-shim.js"></script>
+<script src="../js/jquery-3.2.1.js"></script>
+<script src="../js/audiolib.js"></script>
 <div>
 <p id = "displayString">
-<span id = "planetName">Exoplanets</span><br>
+<span id = "planetName"><strong>Exoplanet sonification; move mouse for sound.</strong><br> 
+Pitch corresponds to planet size; timbre corresponds to atmosphere type. </span><br>
 planet radius:<br>
 distance:<br>
 atmosphere:
@@ -52,9 +58,10 @@ atmosphere:
 "use strict";
 
 var audioContext = new AudioContext();
-var reverbAmountVal = 1.0;
+var reverbAmountVal = 0.1;
 var sounds = undefined;
 var reverbAmount = audioContext.createGain();
+var stereoPanner = audioContext.createStereoPanner();
 
 var impulseResponseBuffer;
 var getSound = new XMLHttpRequest();
@@ -68,7 +75,13 @@ getSound.onload = function() {
 };
 getSound.send();
 
-var appSounds = {
+var size = 900;  // size of d3 display
+
+var mouseX = 0;	// x-coordinates of mouse, for panning
+var mouseScale = 0;
+var mousePan = 0;
+
+let appSounds = {
 	metalGiant0: "sounds/MetalBarG2-2.mp3",
 	metalGiant1: "sounds/MetalBarG2-3.mp3",
     metalGiant2: "sounds/MetalBarG2-4.mp3",
@@ -198,12 +211,16 @@ var appSounds = {
         var reverb = audioContext.createConvolver();
         reverb.buffer = impulseResponseBuffer;
         reverbAmount = audioContext.createGain();
+        stereoPanner.pan.value = mousePan;
 
-        //sound.loop = false;
-        sound.connect(reverb);
-        sound.connect(audioContext.destination);
-        reverb.connect(reverbAmount);
-        reverbAmount.connect(audioContext.destination);
+        // sound.loop = false;
+        sound.connect(stereoPanner);
+        // stereoPanner.connect(reverb);
+        stereoPanner.connect(audioContext.destination);
+        // sound.connect(audioContext.destination);
+        // reverb.connect(reverbAmount);
+        // reverbAmount.connect(audioContext.destination);
+        
     }
 };
 
@@ -229,409 +246,211 @@ var mouseColor = undefined, mouseName = undefined, mouseDistance = undefined, mo
 
 function playMetal() {
 
-var displayString = "<p><span id = 'planetName'>" + mouseName + "</span><br>planet radius: " + mouseColor + " EU <br>distance: " 
+var displayString = "<p><span id = 'planetName'><strong>" + mouseName + "</strong></span><br>planet radius: " + mouseColor + " EU <br>distance: " 
   + mouseDistance + " parsecs <br>atmosphere: " + mouseAtmosphere + "</p>";
 document.getElementById("displayString").innerHTML = displayString;
 
   if (mouseColor >= giant) {  // radius of planet in Earth units
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.metalGiant0.play();
-      break;
-    case 1:
-      sounds.metalGiant1.play();
-      break;
-    case 2:
-      sounds.metalGiant2.play();
-      break;
+    case 0: sounds.metalGiant0.play(); break;
+    case 1: sounds.metalGiant1.play(); break;
+    case 2: sounds.metalGiant2.play(); break;
   }} else
   if (mouseColor >= huge) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.metalHuge0.play();
-      break;
-    case 1:
-      sounds.metalHuge1.play();
-      break;
-    case 2:
-      sounds.metalHuge2.play();
-      break;
-    case 3:
-      sounds.metalHuge3.play();
-      break;
-    case 4:
-      sounds.metalHuge4.play();
-      break;
+    case 0: sounds.metalHuge0.play(); break;
+    case 1: sounds.metalHuge1.play(); break;
+    case 2: sounds.metalHuge2.play(); break;
+    case 3: sounds.metalHuge3.play(); break;
+    case 4: sounds.metalHuge4.play(); break;
   }} else
   if (mouseColor >= bigPlus) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.metalBigPlus0.play();
-      break;
-    case 1:
-      sounds.metalBigPlus1.play();
-      break;
-    case 2:
-      sounds.metalBigPlus2.play();
-      break;
-    case 3:
-      sounds.metalBigPlus3.play();
-      break;
-    case 4:
-      sounds.metalBigPlus4.play();
-      break;
+    case 0: sounds.metalBigPlus0.play(); break;
+    case 1: sounds.metalBigPlus1.play(); break;
+    case 2: sounds.metalBigPlus2.play(); break;
+    case 3: sounds.metalBigPlus3.play(); break;
+    case 4: sounds.metalBigPlus4.play(); break;
   }} else
   if (mouseColor >= big) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.metalBig0.play();
-      break;
-    case 1:
-      sounds.metalBig1.play();
-      break;
-    case 2:
-      sounds.metalBig2.play();
-      break;
-    case 3:
-      sounds.metalBig3.play();
-      break;
-    case 4:
-      sounds.metalBig4.play();
-      break;
+    case 0: sounds.metalBig0.play(); break;
+    case 1: sounds.metalBig1.play(); break;
+    case 2: sounds.metalBig2.play(); break;
+    case 3: sounds.metalBig3.play(); break;
+    case 4: sounds.metalBig4.play(); break;
   }} else
   if (mouseColor >= bigMinus) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.metalBigMinus0.play();
-      break;
-    case 1:
-      sounds.metalBigMinus1.play();
-      break;
-    case 2:
-      sounds.metalBigMinus2.play();
-      break;
-    case 3:
-      sounds.metalBigMinus3.play();
-      break;
-    case 4:
-      sounds.metalBigMinus4.play();
-      break;
+    case 0: sounds.metalBigMinus0.play(); break;
+    case 1: sounds.metalBigMinus1.play(); break;
+    case 2: sounds.metalBigMinus2.play(); break;
+    case 3: sounds.metalBigMinus3.play(); break;
+    case 4: sounds.metalBigMinus4.play(); break;
   }} else
   if (mouseColor >= mediumPlus) {
   var rand = Math.floor(Math.random() * 6);
   switch (rand) {
-    case 0:
-      sounds.metalMediumPlus0.play();
-      break;
-    case 1:
-      sounds.metalMediumPlus1.play();
-      break;
-    case 2:
-      sounds.metalMediumPlus2.play();
-      break;
-    case 3:
-      sounds.metalMediumPlus3.play();
-      break;
-    case 4:
-      sounds.metalMediumPlus4.play();
-      break;
-    case 5:
-      sounds.metalMediumPlus5.play();
-      break;
+    case 0: sounds.metalMediumPlus0.play(); break;
+    case 1: sounds.metalMediumPlus1.play(); break;
+    case 2: sounds.metalMediumPlus2.play(); break;
+    case 3: sounds.metalMediumPlus3.play(); break;
+    case 4: sounds.metalMediumPlus4.play(); break;
+    case 5: sounds.metalMediumPlus5.play(); break;
   }}  else
   if (mouseColor >= medium) {
   var rand = Math.floor(Math.random() * 6);
   switch (rand) {
-    case 0:
-      sounds.metalMedium0.play();
-      break;
-    case 1:
-      sounds.metalMedium1.play();
-      break;
-    case 2:
-      sounds.metalMedium2.play();
-      break;
-    case 3:
-      sounds.metalMedium3.play();
-      break;
-    case 4:
-      sounds.metalMedium4.play();
-      break;
-    case 5:
-      sounds.metalMedium5.play();
-      break;
+    case 0: sounds.metalMedium0.play(); break;
+    case 1: sounds.metalMedium1.play(); break;
+    case 2: sounds.metalMedium2.play(); break;
+    case 3: sounds.metalMedium3.play(); break;
+    case 4: sounds.metalMedium4.play(); break;
+    case 5: sounds.metalMedium5.play(); break;
   }} else
   if (mouseColor >= mediumMinus) {
   var rand = Math.floor(Math.random() * 6);
   switch (rand) {
-    case 0:
-      sounds.metalMediumMinus0.play();
-      break;
-    case 1:
-      sounds.metalMediumMinus1.play();
-      break;
-    case 2:
-      sounds.metalMediumMinus2.play();
-      break;
-    case 3:
-      sounds.metalMediumMinus3.play();
-      break;
-    case 4:
-      sounds.metalMediumMinus4.play();
-      break;
-    case 5:
-      sounds.metalMediumMinus5.play();
-      break;
+    case 0: sounds.metalMediumMinus0.play(); break;
+    case 1: sounds.metalMediumMinus1.play(); break;
+    case 2: sounds.metalMediumMinus2.play(); break;
+    case 3: sounds.metalMediumMinus3.play(); break;
+    case 4: sounds.metalMediumMinus4.play(); break;
+    case 5: sounds.metalMediumMinus5.play(); break;
   }} else
   if (mouseColor >= smallPlus) {
   var rand = Math.floor(Math.random() * 4);
   switch (rand) {
-    case 0:
-      sounds.metalSmallPlus0.play();
-      break;
-    case 1:
-      sounds.metalSmallPlus1.play();
-      break;
-    case 2:
-      sounds.metalSmallPlus2.play();
-      break;
-    case 3:
-      sounds.metalSmallPlus3.play();
-      break;
+    case 0: sounds.metalSmallPlus0.play(); break;
+    case 1: sounds.metalSmallPlus1.play(); break;
+    case 2: sounds.metalSmallPlus2.play(); break;
+    case 3: sounds.metalSmallPlus3.play(); break;
   }} else
   if (mouseColor >= small) {
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.metalSmall0.play();
-      break;
-    case 1:
-      sounds.metalSmall1.play();
-      break;
-    case 2:
-      sounds.metalSmall2.play();
-      break;
+    case 0: sounds.metalSmall0.play(); break;
+    case 1: sounds.metalSmall1.play(); break;
+    case 2: sounds.metalSmall2.play(); break;
   }} else
   if (mouseColor >= smallMinus) {
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.metalSmallMinus0.play();
-      break;
-    case 1:
-      sounds.metalSmallMinus1.play();
-      break;
-    case 2:
-      sounds.metalSmallMinus2.play();
-      break;
+    case 0: sounds.metalSmallMinus0.play(); break;
+    case 1: sounds.metalSmallMinus1.play(); break;
+    case 2: sounds.metalSmallMinus2.play(); break;
   }} else
   if (mouseColor >= tiny) {
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.metalTiny0.play();
-      break;
-    case 1:
-      sounds.metalTiny1.play();
-      break;
-    case 2:
-      sounds.metalTiny2.play();
-      break;
+    case 0: sounds.metalTiny0.play(); break;
+    case 1: sounds.metalTiny1.play(); break;
+    case 2: sounds.metalTiny2.play(); break;
   }} 
 };
 
 function playHydrogen() {
-var displayString = "<p><span id = 'planetName'>" + mouseName + "</span><br>planet radius: " + mouseColor + " EU <br>distance: " 
+var displayString = "<p><span id = 'planetName'><strong>" + mouseName + "</strong></span><br>planet radius: " + mouseColor + " EU <br>distance: " 
   + mouseDistance + " parsescs <br>atmosphere: " + mouseAtmosphere + "</p>";
 document.getElementById("displayString").innerHTML = displayString;
 
   if (mouseColor >= giant) {  // radius of planet in Earth units
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.stringGiant0.play();
-      break;
-    case 1:
-      sounds.stringGiant1.play();
-      break;
-    case 2:
-      sounds.stringGiant2.play();
-      break;
+    case 0: sounds.stringGiant0.play(); break;
+    case 1: sounds.stringGiant1.play(); break;
+    case 2: sounds.stringGiant2.play(); break;
   }} else
   if (mouseColor >= huge) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.stringHuge0.play();
-      break;
-    case 1:
-      sounds.stringHuge1.play();
-      break;
-    case 2:
-      sounds.stringHuge2.play();
-      break;
-    case 3:
-      sounds.stringHuge3.play();
-      break;
-    case 4:
-      sounds.stringHuge4.play();
-      break;
+    case 0: sounds.stringHuge0.play(); break;
+    case 1: sounds.stringHuge1.play(); break;
+    case 2: sounds.stringHuge2.play(); break;
+    case 3: sounds.stringHuge3.play(); break;
+    case 4: sounds.stringHuge4.play(); break;
   }} else
   if (mouseColor >= bigPlus) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.stringBigPlus0.play();
-      break;
-    case 1:
-      sounds.stringBigPlus1.play();
-      break;
-    case 2:
-      sounds.stringBigPlus2.play();
-      break;
-    case 3:
-      sounds.stringBigPlus3.play();
-      break;
-    case 4:
-      sounds.stringBigPlus4.play();
-      break;
+    case 0: sounds.stringBigPlus0.play(); break;
+    case 1: sounds.stringBigPlus1.play(); break;
+    case 2: sounds.stringBigPlus2.play(); break;
+    case 3: sounds.stringBigPlus3.play(); break;
+    case 4: sounds.stringBigPlus4.play(); break;
   }} else
   if (mouseColor >= big) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.stringBig0.play();
-      break;
-    case 1:
-      sounds.stringBig1.play();
-      break;
-    case 2:
-      sounds.stringBig2.play();
-      break;
-    case 3:
-      sounds.stringBig3.play();
-      break;
-    case 4:
-      sounds.stringBig4.play();
-      break;
+    case 0: sounds.stringBig0.play(); break;
+    case 1: sounds.stringBig1.play(); break;
+    case 2: sounds.stringBig2.play(); break;
+    case 3: sounds.stringBig3.play(); break;
+    case 4: sounds.stringBig4.play(); break;
   }} else
   if (mouseColor >= bigMinus) {
   var rand = Math.floor(Math.random() * 5);
   switch (rand) {
-    case 0:
-      sounds.stringBigMinus0.play();
-      break;
-    case 1:
-      sounds.stringBigMinus1.play();
-      break;
-    case 2:
-      sounds.stringBigMinus2.play();
-      break;
-    case 3:
-      sounds.stringBigMinus3.play();
-      break;
-    case 4:
-      sounds.stringBigMinus4.play();
-      break;
+    case 0: sounds.stringBigMinus0.play(); break;
+    case 1: sounds.stringBigMinus1.play(); break;
+    case 2: sounds.stringBigMinus2.play(); break;
+    case 3: sounds.stringBigMinus3.play(); break;
+    case 4: sounds.stringBigMinus4.play(); break;
   }} else
   if (mouseColor >= mediumPlus) {
   var rand = Math.floor(Math.random() * 4);
   switch (rand) {
-    case 0:
-      sounds.stringMediumPlus0.play();
-      break;
-    case 1:
-      sounds.stringMediumPlus1.play();
-      break;
-    case 2:
-      sounds.stringMediumPlus2.play();
-      break;
-    case 3:
-      sounds.stringMediumPlus3.play();
-      break;
+    case 0: sounds.stringMediumPlus0.play(); break;
+    case 1: sounds.stringMediumPlus1.play(); break;
+    case 2: sounds.stringMediumPlus2.play(); break;
+    case 3: sounds.stringMediumPlus3.play(); break;
   }}  else
   if (mouseColor >= medium) {
   var rand = Math.floor(Math.random() * 4);
   switch (rand) {
-    case 0:
-      sounds.stringMedium0.play();
-      break;
-    case 1:
-      sounds.stringMedium1.play();
-      break;
-    case 2:
-      sounds.stringMedium2.play();
-      break;
-    case 3:
-      sounds.stringMedium3.play();
-      break;
+    case 0: sounds.stringMedium0.play(); break;
+    case 1: sounds.stringMedium1.play(); break;
+    case 2: sounds.stringMedium2.play(); break;
+    case 3: sounds.stringMedium3.play(); break;
   }} else
   if (mouseColor >= mediumMinus) {
   var rand = Math.floor(Math.random() * 4);
   switch (rand) {
-    case 0:
-      sounds.stringMediumMinus0.play();
-      break;
-    case 1:
-      sounds.stringMediumMinus1.play();
-      break;
-    case 2:
-      sounds.stringMediumMinus2.play();
-      break;
-    case 3:
-      sounds.stringMediumMinus3.play();
-      break;
+    case 0: sounds.stringMediumMinus0.play(); break;
+    case 1: sounds.stringMediumMinus1.play(); break;
+    case 2: sounds.stringMediumMinus2.play(); break;
+    case 3: sounds.stringMediumMinus3.play(); break;
   }} else
   if (mouseColor >= smallPlus) {
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.stringSmallPlus0.play();
-      break;
-    case 1:
-      sounds.stringSmallPlus1.play();
-      break;
-    case 2:
-      sounds.stringSmallPlus2.play();
-      break;
+    case 0: sounds.stringSmallPlus0.play(); break;
+    case 1: sounds.stringSmallPlus1.play(); break;
+    case 2: sounds.stringSmallPlus2.play(); break;
   }} else
   if (mouseColor >= small) {
   var rand = Math.floor(Math.random() * 3);
   switch (rand) {
-    case 0:
-      sounds.stringSmall0.play();
-      break;
-    case 1:
-      sounds.stringSmall1.play();
-      break;
-    case 2:
-      sounds.stringSmall2.play();
-      break;
+    case 0: sounds.stringSmall0.play(); break;
+    case 1: sounds.stringSmall1.play(); break;
+    case 2: sounds.stringSmall2.play(); break;
   }} else
   if (mouseColor >= smallMinus) {
   var rand = Math.floor(Math.random() * 2);
   switch (rand) {
-    case 0:
-      sounds.stringSmallMinus0.play();
-      break;
-    case 1:
-      sounds.stringSmallMinus1.play();
-      break;
+    case 0: sounds.stringSmallMinus0.play(); break;
+    case 1: sounds.stringSmallMinus1.play(); break;
   }} else
   if (mouseColor >= tiny) {
   var rand = Math.floor(Math.random() * 2);
   switch (rand) {
-    case 0:
-      sounds.stringTiny0.play();
-      break;
-    case 1:
-      sounds.stringTiny1.play();
-      break;
+    case 0: sounds.stringTiny0.play(); break;
+    case 1: sounds.stringTiny1.play(); break;
   }} 
 };
 
@@ -644,11 +463,9 @@ var color = d3.scaleQuantize()
 		// max: 24.5, min: 0.003
 		// 0.0-4.0: blue; 4.0-8.0: lightbrown; 8.0-18.0: brown; 18.0-23.5: red
 
-var mouseSound = d3.scaleQuantize() // try this instead of mouseColor, tied to radius below - doesn't work
-	.range(["tiny","smallMinus", "small", "smallPlus", "mediumMinus", "medium", "mediumPlus", 
-	"bigMinus", "big", "bigPlus", "huge", "giant"])
-
-var size = 900;
+// var mouseSound = d3.scaleQuantize() // try this instead of mouseColor, tied to radius below - doesn't work
+// 	.range(["tiny","smallMinus", "small", "smallPlus", "mediumMinus", "medium", "mediumPlus", 
+// 	"bigMinus", "big", "bigPlus", "huge", "giant"])
 
 var pack = d3.pack()	// algorithm to make the circle distribution onscreen(?)
     .size([size, size])
@@ -664,7 +481,7 @@ d3.csv("phl_hec_all_confirmedSTexcerpt.csv", type, function(error, data) {
 
   color.domain(d3.extent(data, function(d) { return d.radius; }));  
   // domain of the scale function is set by each planet's radius
-  mouseSound.domain(d3.extent(data, function(d) { return d.radius; }));
+  // mouseSound.domain(d3.extent(data, function(d) { return d.radius; }));
 
   var root = d3.hierarchy({children: [{children: planets}].concat(exoplanets)})
       .sum(function(d) { return d.radius * d.radius; })
@@ -686,22 +503,45 @@ d3.csv("phl_hec_all_confirmedSTexcerpt.csv", type, function(error, data) {
     .filter(function(d) { return d.data; })
       .style("fill", function(d) { return color(d.data.radius); })	// is this the key line for mouseovers?
       .on("mouseover", function(d) {
+        mouseX = event.clientX;
+        console.log("mouseX = " + mouseX);
+        mouseScale = d3.scaleLinear()
+        	.domain([0, size])
+        	.range([-1.0, 1.0]);
+        mousePan = mouseScale(mouseX);
+        	console.log("mousePan = " + mousePan);
         mouseColor = d.data.radius;
         mouseName = d.data.name;
         mouseDistance = d.data.distance;
         mouseAtmosphere = d.data.atmosphere;
-        if (d.data.atmosphere === "metals-rich") {playMetal(); // try playSound(function(d){ return mouseSound(d.data.radius )});
+        var mouseOverColor = color(d.data.radius);
+        // Get the hsl value of mouseOverColor
+		if (d.data.name !== "Solar System") {	// keep the Solar System circle from changing color
+        	d3.select(this).style("fill", d3.hsl(mouseOverColor).brighter());
+        }
+        if (d.data.atmosphere === "metals-rich") {playMetal(); 
         } else {playHydrogen()}
-      // d3.select(this).style ("fill", function(d) {return color(d.data.radius).brighter(); }) // doesn't work
+    })
+    .on("mouseout", function(d) {
+    	if (d.data.name !== "Solar System") { // keep the Solar System circle from changing color
+    		d3.select(this).style("fill", function(d) { return color(d.data.radius); })
+    	}
     })
     .append("title")
       .text(function(d) {
+      if (d.data.name === undefined) { d.data.name = "Solar System"
+      //console.log("Solar System text"); // aha - this triggers right at the beginning
+      };
+      if (d.data.radius === undefined){ d.data.radius = "" };
+      if (d.data.distance === undefined){ d.data.distance = "" };
+      if (d.data.atmosphere === undefined){ d.data.atmosphere = "" };
         return d.data.name
             + "\nplanet radius: " + d.data.radius + " EU"
             + "\nstar distance: " + (isNaN(d.data.distance) ? "N/A" : d.data.distance + " pc")
             + "\nplanet atmosphere: " + d.data.atmosphere
 
-      });
+      })
+    
 });
 
 function type(d) {
@@ -711,5 +551,39 @@ function type(d) {
 }
 </script>
 </div>
+<footer>
+<!-- if I include all this text, the divs apparently stop part of the svg from producing sound...
+A sonified chart of exoplanets, originally based on 
+<a href="https://xkcd.com/1071/">XKCD 1071: Exoplanets</a> using data from the 
+<a href = "http://phl.upr.edu/projects/habitable-exoplanets-catalog/data/database">
+Planetary Habitability Laboratory</a>, and based on d3 code by <a href = "http://codementum.org/exoplanets/">Lane Harrison</a>
+and <a href="https://bl.ocks.org/mbostock/3007180">Mike Bostock</a> (this is a big dataset which may take awhile to load). 
+The lower the pitch, the bigger the planet; 
+the plucked string sound signifies a hydrogen-rich atmosphere, while a metallic sound signifies a metals-rich atmosphere 
+(any atmosphere more complex than hydrogen and helium).
+<br><br>
+Sounds made by <a href="http://kyma.symbolicsound.com/">Kyma</a>, and coded with the Web Audio API. 
+The code is pretty verbose, and I would like to make it cleaner. I've put other issues on the project's
+<a href="https://github.com/staylor7/exoplanet-sonification">GitHub site</a>.
+Any comments or suggestions at 
+<a href="http://stephenandrewtaylor.net">stephenandrewtaylor.net</a> are welcome! 
+--!>
+Sonification based on <a href="https://xkcd.com/1071/">XKCD 1071: Exoplanets</a>,
+<br> using data from the 
+<a href = "http://phl.upr.edu/projects/habitable-exoplanets-catalog/data/database">
+Planetary Habitability Laboratory</a>, 
+<br>
+and on 
+<a href="https://d3js.org">d3</a>
+code by <a href = "http://codementum.org/exoplanets/">Lane Harrison</a>
+and <a href="https://bl.ocks.org/mbostock/3007180">Mike Bostock</a>.
+<br>
+Pitch corresponds to planet size; timbre to atmosphere type.
+<br>
+Any comments or suggestions at 
+<a href="http://stephenandrewtaylor.net">stephenandrewtaylor.net</a> are welcome!
+<br><br>
+Sounds made by <a href="http://kyma.symbolicsound.com/">Kyma</a>, with Web Audio API. Last updated 23 September 2017 by Stephen Taylor.
+</footer>
 </body>
 </html>
