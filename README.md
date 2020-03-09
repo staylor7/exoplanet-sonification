@@ -2,7 +2,7 @@
 
 <p>
 Working demo is at <a href="http://stephenandrewtaylor.net/exo-sonification/exoplanets.html">
-  http://stephenandrewtaylor.net/exo-sonification/exoplanets.html</a>; it works in Chrome, but not Safari or Firefox.
+  http://stephenandrewtaylor.net/exo-sonification/exoplanets.html</a>; it works in Chrome, but not Safari or Firefox. (Update: it now works for Safari.)
   
 A sonified chart of exoplanets, originally based on 
 <a href="https://xkcd.com/1071/">XKCD 1071: Exoplanets</a> using data from the 
