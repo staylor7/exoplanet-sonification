@@ -1,0 +1,77 @@
+a:link {color: red; text-decoration: none;}
+a:visited {color: purple; text-decoration: none;}
+a:hover {color: darkorange;}
+a:active {color : orange;}
+
+h1 {
+	font-family: 'Tomorrow', sans-serif;
+	text-align: center;
+}
+
+p {
+	font-family: 'Space Mono', monospace;
+}
+
+footer {
+	font-family: 'Space Mono', monospace;
+	text-align: center;
+}
+
+#chartContainer {
+	text-align: center;
+}
+
+#loadSound {
+	text-align: center;
+	visibility: initial;
+}
+
+/* #displayString {
+	border-style: double;
+	border: blue;
+	border-radius: 10pt;
+} */
+
+/* .group {
+	fill: none;
+  	stroke: #000;
+  	stroke-width: 1.5px;
+}
+  
+#planetName { 
+	font-size: 1.5em; 
+} */
+
+/* div { 
+	display: inline-block;
+	position: absolute; 
+} */
+
+/* svg {
+    position: absolute;
+    top: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 1;
+} */
+
+/* #header {
+	/* width: 1000px;
+	margin: 10px auto 10px auto;
+	padding: 10px 10px 10px 10px; */
+	/* font-size: 1.5em;
+	font-weight: bold;
+	background-color: white;
+} */
+
+/* #chartContainer {
+	top: 20px;
+} */
+
+/* #footer {
+	position: relative;
+	top: 940px;
+	font-family: Arial, sans-serif; */
+	/* font-weight: normal; */
+	/* font-size: .8em;
+} */
